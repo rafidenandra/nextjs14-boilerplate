@@ -1,6 +1,7 @@
-import { forwardRef } from "react";
+import { ReactElement, forwardRef } from "react";
 import Link from "next/link";
 import { VariantProps, cva } from "class-variance-authority";
+import { CgSpinner } from "react-icons/cg";
 
 import { cn } from "@/lib/utils/styles";
 
@@ -36,10 +37,13 @@ export interface IButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   href?: string;
+  icon?: ReactElement;
+  iconRight?: ReactElement;
+  loading?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, IButtonProps>(
-  ({ className, children, href, variant, size, ...props }, ref) => {
+  ({ className, children, href, variant, size, icon, iconRight, loading, ...props }, ref) => {
     if (href) {
       return (
         <Link href={href} className={cn(buttonVariants({ variant, size, className }))}>
@@ -47,9 +51,25 @@ const Button = forwardRef<HTMLButtonElement, IButtonProps>(
         </Link>
       );
     }
+
     return (
-      <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
-        {children}
+      <button
+        ref={ref}
+        {...props}
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={loading}
+      >
+        {loading ? (
+          <span className="flex justify-center items-center gap-2">
+            <CgSpinner className="animate-spin w-6 h-6" /> Processing...
+          </span>
+        ) : (
+          <div className="flex justify-center items-center gap-2">
+            {icon && <span className="text-base">{icon}</span>}
+            {children}
+            {iconRight && <span className="text-base">{iconRight}</span>}
+          </div>
+        )}
       </button>
     );
   }
